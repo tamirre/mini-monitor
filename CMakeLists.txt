@@ -14,13 +14,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Create executable
 add_executable(mini-monitor
     src/main.cpp
-    src/app/application.cpp
+    src/app/Application.cpp
 )
 
 # Include directories
 target_include_directories(mini-monitor
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src
+)
+
+find_package(PostgreSQL REQUIRED)
+
+target_link_libraries(mini-monitor
+    PRIVATE
+        PostgreSQL::PostgreSQL
 )
 
 # Warnings (GCC/Clang)
@@ -31,4 +38,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         -Wpedantic
         -Wconversion
     )
+
+
 endif()

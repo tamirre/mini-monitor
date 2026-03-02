@@ -1,8 +1,7 @@
 #include <iostream>
-#include "app/application.hpp"
+#include "app/Application.hpp"
 
 int main() {
-    // cout << "Hello World!" << endl;
 
 	Application app;
 	app.run();
