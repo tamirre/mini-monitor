@@ -19,7 +19,7 @@ class Database {
 		~Database();
 		void init(std::string host, std::string dbName, std::string user, std::string password);
 		void insertMeasurement(Measurement measurement);
-		void cleanDatabase(int deviceID);
+		void cleanDatabaseByID(int deviceID);
 		std::vector<Measurement> getLastMeasurements(int count);
 };
 

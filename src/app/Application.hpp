@@ -3,9 +3,21 @@
 									  
 #include "../database/Database.hpp"
 
+#include <random>
+
+typedef struct Configuration {
+	std::string host;
+	std::string dbName;
+	std::string user;
+	std::string pass;
+} Configuration;
+
 class Application
 {
 	Database database;
+	Configuration config;
+	bool running;
+	std::mt19937 randomGenerator;
 	public:
 		Application();
 		~Application() noexcept;
@@ -20,6 +32,7 @@ class Application
 		Application& operator=(Application&&) = delete;
 
 		void run();
+		int readConfig(const std::string path);
 		void printLastMeasurements(int count);
 };
 
