@@ -1,0 +1,174 @@
+./src/database/Database.cpp:
+#include "Database.hpp"
+
+#include <iostream>
+
+Database::Database()
+{
+
+}
+
+Database::~Database()
+{
+
+}
+void Database::init(std::string host, std::string dbName, std::string user, std::string password)
+{
+	try {
+		std::string conn_str = "host=" + host +
+			" dbname=" + dbName +
+			" user=" + user +
+			" password=" + password;
+
+		conn = std::make_unique<pqxx::connection>(conn_str);
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Database error: " << e.what() << "\n";
+	}
+	std::cout << "Connection successfull!" << std::endl;
+}
+
+void Database::insertMeasurement(int deviceID, Measurement measurement)
+{
+	pqxx::work txn(*conn);
+	txn.exec("INSERT INTO measurements (device_id, voltage, current) "
+			 "VALUES ($1, $2, $3)",
+			 pqxx::params{deviceID, measurement.voltage, measurement.current});
+	txn.commit();
+}
+void Database::cleanDatabase(int deviceID)
+{
+	pqxx::work txn(*conn); 
+	txn.exec(
+			"DELETE FROM measurements WHERE device_id = $1",
+			pqxx::params{deviceID}
+			);
+	txn.commit();
+}
+
+void Database::printLastMeasurements(int count)
+{
+	pqxx::nontransaction read_txn(*conn);
+	std::string read_str = 
+		"SELECT m.device_id, d.name, m.recorded_at, m.voltage, m.current "
+		"FROM measurements m "
+		"JOIN devices d ON m.device_id = d.id "
+		"ORDER BY m.recorded_at DESC LIMIT " + std::to_string(count);
+	pqxx::result r = read_txn.exec(read_str);
+
+	for (const auto& row : r) {
+		int device_id = row["device_id"].as<int>();
+		std::string name = row["name"].as<std::string>(); 
+		std::string ts = row["recorded_at"].c_str();     
+		double voltage = row["voltage"].as<double>();
+		double current = row["current"].as<double>();
+
+		std::cout
+			<< device_id << " | "
+			<< name << " | "
+			<< ts << " | "
+			<< voltage << " | "
+			<< current << "\n";
+	}
+}
+
+
+./src/database/Database.hpp:
+#ifndef DATABASE_HPP
+#define DATABASE_HPP
+
+#include <string>
+#include <pqxx/pqxx>
+
+typedef struct Measurement {
+	float current;
+	float voltage;
+} Measurement;
+
+class Database {
+	std::unique_ptr<pqxx::connection> conn;
+	public:
+		Database();
+		~Database();
+		void init(std::string host, std::string dbName, std::string user, std::string password);
+		void insertMeasurement(int deviceID, Measurement measurement);
+		void cleanDatabase(int deviceID);
+		void printLastMeasurements(int count);
+};
+
+#endif // DATABASE_HPP
+
+./src/app/Application.hpp:
+#ifndef APPLICATION_HPP
+#define APPLICATION_HPP
+									  
+#include "../database/Database.hpp"
+
+class Application
+{
+	Database database;
+	public:
+		Application();
+		~Application() noexcept;
+
+		// Disable copy constructor and assignment operator
+		// by explicitly deleting them
+		Application(const Application&) = delete;
+		Application& operator=(const Application&) = delete;
+		// Disable move constructor and assignment operator
+		// by explicitly deleting them
+		Application(Application&&) = delete;
+		Application& operator=(Application&&) = delete;
+
+		void run();
+};
+
+#endif // APPLICATION_HPP
+
+./src/app/Application.cpp:
+#include "Application.hpp"
+
+#include <iostream>
+#include <chrono>
+#include <thread>
+									  
+Application::Application()
+{
+	std::cout << "Mini Energy Monitor starting..." << std::endl;
+
+	std::string host = "localhost";
+	std::string dbName = "mini_monitor";
+	std::string user = "mini_user";
+	std::string pass = "mini_pass";
+	database.init(host, dbName, user, pass);
+}
+
+Application::~Application()
+{
+	std::cout << "Shutting down..." << std::endl;
+}	
+
+void Application::run()
+{
+	std::cout << "Running..." << std::endl;
+	Measurement measurement = {
+		.current = 5.0,
+		.voltage = 230.0,
+	};
+	database.insertMeasurement(1, measurement);
+	database.printLastMeasurements(10);
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+
+./src/main.cpp:
+#include <iostream>
+#include "app/Application.hpp"
+
+int main() {
+
+	Application app;
+	app.run();
+    return 0;
+}
+

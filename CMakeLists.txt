@@ -8,26 +8,32 @@ project(mini-monitor
 
 # Require C++20
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Create executable
 add_executable(mini-monitor
     src/main.cpp
     src/app/Application.cpp
+	src/database/Database.cpp
 )
 
 # Include directories
 target_include_directories(mini-monitor
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
-)
+    PRIVATE 
+		${CMAKE_SOURCE_DIR}/src
+		${PQXX_INCLUDE_DIRS}
+	)
 
-find_package(PostgreSQL REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpqxx -lpq")
+
+set(PQXX /usr/local/include/pqxx)
+
+find_library(PQXX_LIB pqxx)
+find_library(PQ_LIB pq)
 
 target_link_libraries(mini-monitor
-    PRIVATE
-        PostgreSQL::PostgreSQL
+    PRIVATE 
+		${PQXX_LIB}
+		${PQ_LIB}
 )
 
 # Warnings (GCC/Clang)
@@ -37,7 +43,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         -Wextra
         -Wpedantic
         -Wconversion
-    )
+	)
 
 
 endif()

@@ -1,8 +1,11 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 									  
+#include "../database/Database.hpp"
+
 class Application
 {
+	Database database;
 	public:
 		Application();
 		~Application() noexcept;
@@ -17,6 +20,7 @@ class Application
 		Application& operator=(Application&&) = delete;
 
 		void run();
+		void printLastMeasurements(int count);
 };
 
 #endif // APPLICATION_HPP
