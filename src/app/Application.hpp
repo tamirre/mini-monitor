@@ -5,12 +5,12 @@
 
 #include <random>
 
-typedef struct Configuration {
+struct Configuration {
 	std::string host;
 	std::string dbName;
 	std::string user;
 	std::string pass;
-} Configuration;
+};
 
 class Application
 {

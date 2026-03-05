@@ -24,8 +24,6 @@ Application::Application()
 Application::~Application()
 {
 	std::cout << "Shutting down..." << std::endl;
-	database.cleanDatabaseByID(1);
-	database.cleanDatabaseByID(2);
 }	
 
 int Application::readConfig(const std::string path)
@@ -33,11 +31,8 @@ int Application::readConfig(const std::string path)
 	std::ifstream file(path);
     if (!file) return 1;
 
-    std::stringstream ss;
-    ss << file.rdbuf();  // read entire file
-
     std::string key, value;
-    while (ss >> key >> value) {  // extract key and value directly
+    while (file >> key >> value) {  // extract key and value directly
         if (key == "host")   config.host   = value;
         else if (key == "dbName") config.dbName = value;
         else if (key == "user")   config.user   = value;
@@ -75,6 +70,8 @@ void Application::run()
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}	
 	printLastMeasurements(10);
+	// Only for testing 
+	database.cleanDatabase();
 }
 
 void Application::printLastMeasurements(int count)

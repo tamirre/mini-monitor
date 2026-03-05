@@ -41,6 +41,19 @@ void Database::insertMeasurement(Measurement measurement)
 	}
 }
 
+void Database::cleanDatabase()
+{
+	try {
+		pqxx::work txn(*conn); 
+		txn.exec("DELETE FROM measurements");
+		txn.commit();
+		std::cout << "Database cleaned!" << std::endl;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Database error: " << e.what() << "\n";
+	}
+}
+
 void Database::cleanDatabaseByID(int deviceID)
 {
 	try {
@@ -66,8 +79,9 @@ std::vector<Measurement> Database::getLastMeasurements(int count)
 			"SELECT m.device_id, d.name, m.recorded_at, m.voltage, m.current "
 			"FROM measurements m "
 			"JOIN devices d ON m.device_id = d.id "
-			"ORDER BY m.recorded_at DESC LIMIT " + std::to_string(count);
-		pqxx::result r = read_txn.exec(read_str);
+			"ORDER BY m.recorded_at DESC LIMIT $1";
+		;
+		pqxx::result r = read_txn.exec(read_str, pqxx::params{count});
 
 		for (const auto& row : r) {
 			Measurement m = {
