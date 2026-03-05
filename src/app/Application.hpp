@@ -32,8 +32,8 @@ class Application
 		Application& operator=(Application&&) = delete;
 
 		void run();
-		int readConfig(const std::string path);
-		void printLastMeasurements(int count);
+		int readConfig(const std::string& path);
+		void printLastMeasurements(const int& count);
 };
 
 #endif // APPLICATION_HPP

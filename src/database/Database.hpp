@@ -17,11 +17,11 @@ class Database {
 	public:
 		Database();
 		~Database();
-		void init(std::string host, std::string dbName, std::string user, std::string password);
+		void init(const std::string& host, const std::string& dbName, const std::string& user, const std::string& password);
 		void insertMeasurement(Measurement measurement);
-		void cleanDatabaseByID(int deviceID);
+		void cleanDatabaseByID(const int& deviceID);
 		void cleanDatabase();
-		std::vector<Measurement> getLastMeasurements(int count);
+		std::vector<Measurement> getLastMeasurements(const int& count);
 };
 
 #endif // DATABASE_HPP

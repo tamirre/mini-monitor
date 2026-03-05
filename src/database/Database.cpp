@@ -11,13 +11,14 @@ Database::~Database()
 {
 
 }
-void Database::init(std::string host, std::string dbName, std::string user, std::string password)
+
+void Database::init(const std::string& host, const std::string& dbName, const std::string& user, const std::string& password)
 {
 	try {
 		std::string conn_str = "host=" + host +
-			" dbname=" + dbName +
-			" user=" + user +
-			" password=" + password;
+							   " dbname=" + dbName +
+							   " user=" + user +
+							   " password=" + password;
 
 		conn = std::make_unique<pqxx::connection>(conn_str);
 		std::cout << "Connection successfull!" << std::endl;
@@ -54,7 +55,7 @@ void Database::cleanDatabase()
 	}
 }
 
-void Database::cleanDatabaseByID(int deviceID)
+void Database::cleanDatabaseByID(const int& deviceID)
 {
 	try {
 		pqxx::work txn(*conn); 
@@ -70,7 +71,7 @@ void Database::cleanDatabaseByID(int deviceID)
 	}
 }
 
-std::vector<Measurement> Database::getLastMeasurements(int count)
+std::vector<Measurement> Database::getLastMeasurements(const int& count)
 {
 	std::vector<Measurement> measurements;
 	try {

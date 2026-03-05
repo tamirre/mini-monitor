@@ -26,7 +26,7 @@ Application::~Application()
 	std::cout << "Shutting down..." << std::endl;
 }	
 
-int Application::readConfig(const std::string path)
+int Application::readConfig(const std::string& path)
 {
 	std::ifstream file(path);
     if (!file) return 1;
@@ -74,7 +74,7 @@ void Application::run()
 	database.cleanDatabase();
 }
 
-void Application::printLastMeasurements(int count)
+void Application::printLastMeasurements(const int& count)
 {
 	std::vector<Measurement> measurements = database.getLastMeasurements(count);
 	std::cout
